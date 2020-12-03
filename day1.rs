@@ -11,8 +11,9 @@ fn main() {
         }
     }
     
-    //part 1 solution 1
+    //part 1 solution 2
     //array should be sorted before executing below
+    //data.sort_unstable();
     let product = data.iter()
         .find(|&&num| data.binary_search(&(2020 - num)).is_ok())
         .map(|&num| num * (2020-num))
