@@ -1,5 +1,7 @@
 fn main() {
     let data = read_input("day1.txt");
+    
+    //part 1 solution 1
     for (i, num1) in data.iter().enumerate() {
         for num2 in data.iter().skip(i) {
             if num1 + num2 == 2020 {
@@ -8,7 +10,17 @@ fn main() {
             }
         }
     }
-
+    
+    //part 1 solution 1
+    //array should be sorted before executing below
+    let product = data.iter()
+        .find(|&&num| data.binary_search(&(2020 - num)).is_ok())
+        .map(|&num| num * (2020-num))
+        .unwrap();
+    println!("{}", result);
+    
+    
+    //part 2 solution
     for (i, num1) in data.iter().enumerate() {
         for (j, num2) in data.iter().enumerate().skip(i) {
             for num3 in data.iter().skip(j) {
