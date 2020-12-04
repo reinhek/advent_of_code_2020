@@ -107,8 +107,8 @@ mod tests {
 
     #[test]
     fn example2() {
-        let input: &str = &std::fs::read_to_string("input/test4.txt").unwrap();
-        assert_eq!(solve_part2(input), 2);
+        let input: &str = &std::fs::read_to_string("input/test4_2.txt").unwrap();
+        assert_eq!(solve_part2(input), 4);
     }
 
 
