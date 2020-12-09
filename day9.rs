@@ -6,7 +6,7 @@ fn generator(input: &str) -> Vec<usize> {
     input.lines().map(|s| s.parse().unwrap()).collect()
 }
 
-fn pair_exists(set: Vec<usize>, number: usize) -> bool {
+fn pair_exists(set: &[usize], number: usize) -> bool {
     for (i, num1) in set.iter().enumerate() {
         for num2 in set.iter().skip(i) {
             if *num1 + *num2 == number && *num1 != *num2 {
@@ -21,7 +21,7 @@ fn find_invalid(numbers: &Vec<usize>, preamble: usize) -> usize {
     let mut first_index = 0;
     let mut number_index = preamble;
     while number_index < numbers.len() {
-        let preamble_set = numbers[first_index..number_index].to_vec();
+        let preamble_set = &numbers[first_index..number_index];
         let number = numbers[number_index];
 
         if !pair_exists(preamble_set, number) {
