@@ -7,11 +7,9 @@ fn generator(input: &str) -> Vec<usize> {
 }
 
 fn pair_exists(set: &[usize], number: usize) -> bool {
-    for (i, num1) in set.iter().enumerate() {
-        for num2 in set.iter().skip(i) {
-            if *num1 + *num2 == number && *num1 != *num2 {
-                return true
-            }
+    for num in set.iter() {
+        if set.contains(&(number - *num)) {
+            return true
         }
     }
     false
