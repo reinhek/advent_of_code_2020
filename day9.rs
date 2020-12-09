@@ -8,7 +8,7 @@ fn generator(input: &str) -> Vec<usize> {
 
 fn pair_exists(set: &[usize], number: usize) -> bool {
     for num in set.iter() {
-        if set.contains(&(number - *num)) {
+        if set.contains(&(number - *num)) && *num < number{
             return true
         }
     }
@@ -18,6 +18,7 @@ fn pair_exists(set: &[usize], number: usize) -> bool {
 fn find_invalid(numbers: &Vec<usize>, preamble: usize) -> usize {
     let mut first_index = 0;
     let mut number_index = preamble;
+
     while number_index < numbers.len() {
         let preamble_set = &numbers[first_index..number_index];
         let number = numbers[number_index];
@@ -34,22 +35,31 @@ fn find_invalid(numbers: &Vec<usize>, preamble: usize) -> usize {
 }
 
 fn find_weakness(numbers: &Vec<usize>, invalid: usize) -> usize {
-    for (i, num1) in numbers.iter().enumerate() {
-        let set = &numbers[i..];
-        let mut sum = 0;
-        let mut num2 = 0;
+    for i in 2..numbers.len() {
+        for set in numbers.windows(i) {
+            let mut sum = 0;
+            let mut num1 = 0;
+            let mut num2 = 0;
 
-        for num in set.iter() {
-            if *num > num2 {
-                num2 = *num;
-            }
+            for num in set.iter() {
+                if *num > num2 {
+                    num2 = *num;
+                }
+                if *num < num1 {
+                    num1 = *num;
+                }
 
-            sum += *num;
+                sum += *num;
 
-            if sum == invalid {
-                return num1 + num2
+                if sum == invalid {
+                    return num1 + num2
+                }
+                if sum > invalid {
+                    break;
+                }
             }
         }
+
     }
     0
 }
