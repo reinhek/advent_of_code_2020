@@ -1,5 +1,4 @@
 use aoc_runner_derive::{aoc, aoc_generator};
-use itertools::Itertools;
 
 #[aoc_generator(day9)]
 fn generator(input: &str) -> Vec<usize> {
@@ -8,7 +7,7 @@ fn generator(input: &str) -> Vec<usize> {
 
 fn pair_exists(set: &[usize], number: usize) -> bool {
     for num in set.iter() {
-        if set.contains(&(number - *num)) && *num < number{
+        if *num < number && set.contains(&(number - *num)) {
             return true
         }
     }
@@ -35,28 +34,27 @@ fn find_invalid(numbers: &Vec<usize>, preamble: usize) -> usize {
 }
 
 fn find_weakness(numbers: &Vec<usize>, invalid: usize) -> usize {
-    for i in 2..numbers.len() {
-        for set in numbers.windows(i) {
-            let mut sum = 0;
-            let mut num1 = 0;
-            let mut num2 = 0;
+    for (i, num1) in numbers.iter().enumerate() {
+        let set = &numbers[i..];
+        let mut sum = 0;
+        let mut max = 0;
+        let mut min = set[0];
 
-            for num in set.iter() {
-                if *num > num2 {
-                    num2 = *num;
-                }
-                if *num < num1 {
-                    num1 = *num;
-                }
+        for num in set.iter() {
+            if *num > max {
+                max = *num;
+            }
+            if *num < min {
+                min = *num;
+            }
 
-                sum += *num;
+            sum += *num;
 
-                if sum == invalid {
-                    return num1 + num2
-                }
-                if sum > invalid {
-                    break;
-                }
+            if sum == invalid {
+                return min + max
+            }
+            if sum > invalid {
+                break;
             }
         }
 
