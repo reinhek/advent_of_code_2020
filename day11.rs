@@ -17,7 +17,7 @@ enum State {
 
 impl Map {
     fn get(&self, x: usize, y:usize) -> Option<&State> {
-        self.field.get(x).and_then(|r|r.get(y))
+        self.field.get(y).and_then(|r|r.get(x))
     }
 
     fn count_visible(&self, x: usize, y: usize, max_range: usize) -> usize {
@@ -40,7 +40,7 @@ impl Map {
                 rd += slopes[dir].0;
                 cd += slopes[dir].1;
 
-                match self.get(rd as usize, cd as usize) {
+                match self.get(cd as usize, rd as usize) {
                     Some(State::Occupied) => {
                         count += 1;
                         break;
