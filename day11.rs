@@ -81,7 +81,7 @@ fn generator(input: &str) -> Map {
     Map { field, width, height }
 }
 
-fn simulate(map: &Map) -> usize {
+fn simulate(map: &Map, vision_range: usize, occupied_tolerance: usize) -> usize {
     let mut occupied = 0;
     let mut map_to_check = map.clone();
     let mut map_to_change = map.clone();
@@ -91,13 +91,13 @@ fn simulate(map: &Map) -> usize {
             for (x, state) in line.iter().enumerate() {
                 match state {
                     State::EmptySeat => {
-                        if map_to_check.count_visible(x,y, 1) == 0{
+                        if map_to_check.count_visible(x,y, vision_range) == 0{
                             map_to_change.field[y][x] = State::Occupied;
                             occupied += 1;
                         }
                     },
                     State::Occupied => {
-                        if map_to_check.count_visible(x, y, 1) >= 4{
+                        if map_to_check.count_visible(x, y, vision_range) >= occupied_tolerance{
                             map_to_change.field[y][x] = State::EmptySeat;
                             occupied -= 1;
                         }
@@ -115,48 +115,15 @@ fn simulate(map: &Map) -> usize {
     occupied
 }
 
-fn simulate_2(map: &Map) -> usize {
-    let mut occupied = 0;
-    let mut map_to_check = map.clone();
-    let mut map_to_change = map.clone();
-
-    loop {
-        for (y, line) in map_to_check.field.iter().enumerate() {
-            for (x, state) in line.iter().enumerate() {
-                match state {
-                    State::EmptySeat => {
-                        if map_to_check.count_visible(x,y, std::usize::MAX) == 0{
-                            map_to_change.field[y][x] = State::Occupied;
-                            occupied += 1;
-                        }
-                    },
-                    State::Occupied => {
-                        if map_to_check.count_visible(x, y, std::usize::MAX) >= 5{
-                            map_to_change.field[y][x] = State::EmptySeat;
-                            occupied -= 1;
-                        }
-                    },
-                    _ => continue
-                };
-            }
-        }
-        if map_to_check == map_to_change {
-            break;
-        }
-        map_to_check = map_to_change.clone();
-    }
-
-    occupied
-}
 
 #[aoc(day11, part1)]
 fn solve_part1(input: &Map) -> usize {
-    simulate(input)
+    simulate(input, 1, 4)
 }
 
 #[aoc(day11, part2)]
 fn solve_part2(input: &Map) -> usize {
-    simulate_2(input)
+    simulate(input, std::usize::MAX, 5)
 }
 
 #[cfg(test)]
