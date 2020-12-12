@@ -1,6 +1,6 @@
 use aoc_runner_derive::{aoc, aoc_generator};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 struct Map {
     field: Vec<Vec<State>>,
     width: usize,
@@ -16,37 +16,53 @@ enum State {
 }
 
 impl Map {
-    fn get_adjacent_count(&self, x: usize, y: usize) -> usize {
-        let mut seats = Vec::new();
-        if x as i32 -1 >= 0 {
-            seats.push(self.field[y][x-1]);
-        }
-        if x+1 < self.width {
-            seats.push(self.field[y][x+1]);
-        }
-        if y as i32 -1 >= 0{
-            seats.push(self.field[y-1][x]);
-        }
-        if y+1 < self.height {
-            seats.push(self.field[y+1][x]);
-        }
-        if x as i32 -1 >= 0 && y as i32 -1 >= 0 {
-            seats.push(self.field[y-1][x-1]);
-        }
-        if x+1 < self.width && y as i32 -1 >= 0 {
-            seats.push(self.field[y-1][x+1]);
-        }
-        if x as i32 -1 >= 0 && y+1 < self.height {
-            seats.push(self.field[y+1][x-1]);
-        }
-        if x+1 < self.width && y+1 < self.height {
-            seats.push(self.field[y+1][x+1]);
-        }
-
-        seats.iter().filter(|&&s| s == State::Occupied).count()
+    fn get(&self, x: usize, y:usize) -> Option<&State> {
+        self.field.get(x).and_then(|r|r.get(y))
     }
 
+    fn count_visible(&self, x: usize, y: usize, max_range: usize) -> usize {
+        let mut count = 0;
+
+        let slopes = vec![(1,1),
+                              (1,0),
+                              (1,-1),
+                              (0,1),
+                              (0,-1),
+                              (-1,1),
+                              (-1,0),
+                              (-1,-1)];
+
+        for dir in 0..slopes.len() {
+            let mut rd = y as i32;
+            let mut cd = x as i32;
+
+            for _ in 0..max_range {
+                rd += slopes[dir].0;
+                cd += slopes[dir].1;
+
+                match self.get(rd as usize, cd as usize) {
+                    Some(State::Occupied) => {
+                        count += 1;
+                        break;
+                    },
+                    Some(State::Floor) => {
+                        continue;
+                    },
+                    _=> {
+                        break;
+                    }
+                }
+
+            }
+        }
+
+
+        count
+    }
+
+
 }
+
 
 #[aoc_generator(day11)]
 fn generator(input: &str) -> Map {
@@ -66,33 +82,66 @@ fn generator(input: &str) -> Map {
 }
 
 fn simulate(map: &Map) -> usize {
-    let mut has_changed = true;
     let mut occupied = 0;
     let mut map_to_check = map.clone();
     let mut map_to_change = map.clone();
 
-    while has_changed {
-        has_changed = false;
+    loop {
         for (y, line) in map_to_check.field.iter().enumerate() {
             for (x, state) in line.iter().enumerate() {
                 match state {
                     State::EmptySeat => {
-                        if map_to_check.get_adjacent_count(x, y) == 0{
+                        if map_to_check.count_visible(x,y, 1) == 0{
                             map_to_change.field[y][x] = State::Occupied;
-                            has_changed = true;
                             occupied += 1;
                         }
                     },
                     State::Occupied => {
-                        if map_to_check.get_adjacent_count(x, y) >= 4{
+                        if map_to_check.count_visible(x, y, 1) >= 4{
                             map_to_change.field[y][x] = State::EmptySeat;
-                            has_changed = true;
                             occupied -= 1;
                         }
                     },
                     _ => continue
                 };
             }
+        }
+        if map_to_check == map_to_change {
+            break;
+        }
+        map_to_check = map_to_change.clone();
+    }
+
+    occupied
+}
+
+fn simulate_2(map: &Map) -> usize {
+    let mut occupied = 0;
+    let mut map_to_check = map.clone();
+    let mut map_to_change = map.clone();
+
+    loop {
+        for (y, line) in map_to_check.field.iter().enumerate() {
+            for (x, state) in line.iter().enumerate() {
+                match state {
+                    State::EmptySeat => {
+                        if map_to_check.count_visible(x,y, std::usize::MAX) == 0{
+                            map_to_change.field[y][x] = State::Occupied;
+                            occupied += 1;
+                        }
+                    },
+                    State::Occupied => {
+                        if map_to_check.count_visible(x, y, std::usize::MAX) >= 5{
+                            map_to_change.field[y][x] = State::EmptySeat;
+                            occupied -= 1;
+                        }
+                    },
+                    _ => continue
+                };
+            }
+        }
+        if map_to_check == map_to_change {
+            break;
         }
         map_to_check = map_to_change.clone();
     }
@@ -105,10 +154,14 @@ fn solve_part1(input: &Map) -> usize {
     simulate(input)
 }
 
+#[aoc(day11, part2)]
+fn solve_part2(input: &Map) -> usize {
+    simulate_2(input)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::borrow::Borrow;
 
     static INPUT: &'static str = "L.LL.LL.LL
 LLLLLLL.LL
@@ -124,6 +177,11 @@ L.LLLLL.LL";
     #[test]
     fn example1() {
         assert_eq!(solve_part1(&generator(INPUT)), 37);
+    }
+
+    #[test]
+    fn example2() {
+        assert_eq!(solve_part2(&generator(INPUT)), 26);
     }
 
 
