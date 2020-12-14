@@ -147,7 +147,7 @@ fn execute(instructions: &Vec<Instruction>, part: u8) -> usize {
 
                 if part == 1 {
                     memory.insert(*mem, temp_val);
-                } else {
+                } else if part == 2{
                     for add in permute(vec![temp_add]).iter() {
                         memory.insert(bin_to_int(*add), bin_value);
                     }
